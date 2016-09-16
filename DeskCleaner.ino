@@ -1,13 +1,13 @@
-#define M1_S 5 // motor1 speed pin
+#define M1_S 5 // motor1 analog speed pin
 #define M1_D 4 // motor1 direction pin
-#define M2_S 6 // motor2 speed pin
+#define M2_S 6 // motor2 analog speed pin
 #define M2_D 7 // motor2 direction pin
-#define CLEANER 8 // cleaner pin
-#define SENSOR_B 11 // back sensor analog pin
-#define SENSOR_R 12 // right sensor analog pin
-#define SENSOR_L 13 // left sensor analog pin
 
-enum State {Forward, Backward, Rotate, Warning, Stop} state;
+#define SENSOR_B 13 // back sensor analog pin
+#define SENSOR_R 10 // right sensor analog pin
+#define SENSOR_L 11 // left sensor analog pin
+
+enum State {Forward, Backward, Rotate, Warning} state;
 
 void check_state();
 void rotate_right(int analog_speed);
@@ -21,57 +21,36 @@ boolean is_return = false;
 boolean is_rotate = false;
 
 void setup() {
-  // put your setup code here, to run once:
   pinMode(M1_S, OUTPUT); // 速度 (Analog)
   pinMode(M1_D, OUTPUT); // 方向 (HIGH/LOW)
   pinMode(M2_S, OUTPUT); // 速度 (Analog)
   pinMode(M2_D, OUTPUT); // 方向 (HIGH/LOW)
-  pinMode(CLEANER, OUTPUT);
   pinMode(SENSOR_B, INPUT);
   pinMode(SENSOR_R, INPUT);
   pinMode(SENSOR_L, INPUT);
-  Serial.begin(9600);
 }
 
 void loop() {
-  digitalWrite(CLEANER, HIGH);
   check_state();
   switch (state) {
     case Forward:
-      Serial.print("run forward : ");
-      //      run_forward(28);
-      run_forward(38);
+      run_forward(48);
       break;
 
     case Backward:
-      Serial.print("run backward : ");
-      //      run_backward(28);
-      run_backward(38);
-
+      run_backward(48);
       is_return = true;
       break;
 
     case Rotate:
-      Serial.print("rotate : ");
-      //      rotate_right(35);
-      rotate_right(45);
+      rotate_right(48);
       break;
 
     case Warning:
-      Serial.print("WARNING ZONE : ");
-      //      move_to_safe_zone(120);
-      move_to_safe_zone(120);
-      break;
-
-    case Stop:
-
+      move_to_safe_zone(100);
       break;
   }
 
-  Serial.print("R : ");
-  Serial.print(digitalRead(SENSOR_R));
-  Serial.print(", L : ");
-  Serial.println(digitalRead(SENSOR_L));
   delay(10);
 }
 
@@ -80,7 +59,7 @@ void rotate_right(int analog_speed) {
   turn_motor1(analog_speed + 2, HIGH);
   turn_motor2(analog_speed, LOW);
   count++;
-  if (count > 40) {
+  if (count > 30) {
     is_return = false;
     is_rotate = false;
     count = 0;
@@ -100,7 +79,6 @@ void rotate_left(int analog_speed) {
 }
 
 void move_to_safe_zone(int analog_speed) {
-  static int count = 0;
   turn_motor1(analog_speed, LOW);
   turn_motor2(analog_speed, LOW);
 }
